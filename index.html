@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Report Generator</title>
+
+  <style>
+    body {
+      font-family: "Poppins", sans-serif;
+      background: #eef2f3;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      padding-top: 40px;
+      transition: background 0.4s;
+    }
+
+    .container {
+      width: 420px;
+      background: white;
+      padding: 25px;
+      border-radius: 18px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+      transition: 0.3s;
+    }
+
+    h2 {
+      text-align: center;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 10px;
+      border: 1px solid #aaa;
+      font-size: 16px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      margin-top: 10px;
+      cursor: pointer;
+      background: #4a90e2;
+      color: white;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background: #357ac8;
+    }
+
+    #reportBox {
+      margin-top: 20px;
+      padding: 20px;
+      background: #ffffff;
+      border-radius: 12px;
+      display: none;
+      animation: fadeIn 0.5s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .gradeBox {
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-weight: bold;
+      display: inline-block;
+      color: white;
+    }
+
+    .Aplus { background: #2ecc71; }
+    .Aminus { background: #27ae60; }
+    .Bgrade { background: #3498db; }
+    .Cgrade { background: #f39c12; }
+    .Dgrade { background: #e67e22; }
+    .Fgrade { background: #e74c3c; }
+
+    .dark {
+      background: #1e1e1e !important;
+      color: white;
+    }
+
+    .dark .container {
+      background: #2b2b2b;
+      color: white;
+    }
+
+    .dark input {
+      background: #3a3a3a;
+      color: white;
+      border: 1px solid #666;
+    }
+
+    .dark button {
+      background: #6ab0ff;
+    }
+
+    .toggleMode {
+      text-align: center;
+      margin-bottom: 20px;
+      cursor: pointer;
+      color: #555;
+      text-decoration: underline;
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="toggleMode" onclick="toggleDark()">Toggle Dark Mode 🌙</div>
+
+    <h2>Student Report Generator</h2>
+
+    <input type="text" id="name" placeholder="Enter student name" />
+    <input type="number" id="m1" placeholder="Marks 1" />
+    <input type="number" id="m2" placeholder="Marks 2" />
+    <input type="number" id="m3" placeholder="Marks 3" />
+
+    <button onclick="createReport()">Generate Report</button>
+    <button onclick="resetForm()" style="background:#9b59b6;">Reset</button>
+
+    <button onclick="downloadPDF()" style="background:#16a085;">Download PDF</button>
+
+    <div id="reportBox"></div>
+  </div>
+
+  <script>
+    function calcAverage(m1, m2, m3) {
+      return (m1 + m2 + m3) / 3;
+    }
+
+    function findGrade(avg) {
+      if (avg >= 90) return { grade: "A+", className: "Aplus" };
+      if (avg >= 80) return { grade: "A-", className: "Aminus" };
+      if (avg >= 70) return { grade: "B", className: "Bgrade" };
+      if (avg >= 60) return { grade: "C", className: "Cgrade" };
+      if (avg >= 50) return { grade: "D", className: "Dgrade" };
+      return { grade: "F", className: "Fgrade" };
+    }
+
+    function checkPassFail(avg) {
+      return avg >= 40 ? "Pass" : "Fail";
+    }
+
+    function createReport() {
+      const name = document.getElementById("name").value;
+      const m1 = Number(document.getElementById("m1").value);
+      const m2 = Number(document.getElementById("m2").value);
+      const m3 = Number(document.getElementById("m3").value);
+
+      if (!name || !m1 || !m2 || !m3) {
+        alert("Please fill all fields!");
+        return;
+      }
+
+      const avg = calcAverage(m1, m2, m3);
+      const { grade, className } = findGrade(avg);
+      const status = checkPassFail(avg);
+
+      document.getElementById("reportBox").style.display = "block";
+      document.getElementById("reportBox").innerHTML = `
+        <h3>Report for ${name}</h3>
+        <p><strong>Average Marks:</strong> ${avg.toFixed(2)}</p>
+        <p><strong>Grade:</strong> <span class="gradeBox ${className}">${grade}</span></p>
+        <p><strong>Status:</strong> ${status}</p>
+      `;
+    }
+
+    function resetForm() {
+      document.getElementById("name").value = "";
+      document.getElementById("m1").value = "";
+      document.getElementById("m2").value = "";
+      document.getElementById("m3").value = "";
+      document.getElementById("reportBox").style.display = "none";
+    }
+
+    function toggleDark() {
+      document.body.classList.toggle("dark");
+    }
+
+    function downloadPDF() {
+      const content = document.getElementById("reportBox").innerHTML;
+      const win = window.open("", "", "width=800,height=600");
+      win.document.write("<html><head><title>Report</title></head><body>");
+      win.document.write(content);
+      win.document.write("</body></html>");
+      win.document.close();
+      win.print();
+    }
+  </script>
+
+</body>
+</html>
